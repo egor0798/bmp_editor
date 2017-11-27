@@ -1,0 +1,19 @@
+//
+// Created by egor on 27.11.17.
+//
+#pragma once
+#include <stdlib.h>
+#include "../include/transfer.h"
+#include "../include/bmp.h"
+
+image_s* rotate_right(image_s* src){
+    image_s new;
+    new.width = src->height;
+    new.height = src->width;
+    new.data = (pixel_s*)malloc(sizeof(pixel_s)*new.width*new.height);
+    for (int i = 0; i < src->height; ++i) {
+        for (int j = 0; j < src->width; ++j)
+            new.data[j*src->width + i] = src->data[i*src->width + j];
+    }
+    return &new;
+}
