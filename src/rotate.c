@@ -4,7 +4,6 @@
 #pragma once
 #include <stdlib.h>
 #include "../include/transfer.h"
-#include "../include/bmp.h"
 
 image_s* rotate_right(image_s* src, image_s* new){
     new->width = src->height;
