@@ -1,28 +1,34 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../include/inOut.h"
 #include "../include/transfer.h"
+#include "../include/bmp.h"
+
 //int argc, char** argv
-int main() {
+int main(int argc, char** argv) {
     image_s image;
     bool clockwise = true;
-    char* path = "smiley.bmp";
+    char* path = malloc(sizeof(char)*200);
     FILE* in = NULL;
     read_code result;
     bmpHeader_s header;
+//    scanf("%s", path);
+//    printf("%s", path);
 
-//    if(argc == 1 || argc > 3) {
-//        printf("Wrong count of arguments");
-//        return 1;
-//    }
-//    if(strcmp(argv[2], "-r") && strcmp(argv[2], "-l")){
-//        printf("Second argument should be '-r' or '-l' depends on rotation direction");
-//        return 1;
-//    }
-//    path = argv[1];
-//    if(strcmp(argv[2], "-l"))
-//        clockwise = false;
+    if(argc == 1 || argc > 3) {
+        printf("Wrong count of arguments\n");
+        return 1;
+    }
+    if(strcmp(argv[2], "-r") && strcmp(argv[2], "-l")){
+        printf("Second argument should be '-r' or '-l' depends on rotation direction\n");
+        return 1;
+    }
+    path = argv[1];
+    if(strcmp(argv[2], "-l"))
+        clockwise = false;
+
     in = fopen(path, "r+b");
 
     switch(read_data(in, &image))
@@ -41,11 +47,15 @@ int main() {
             printf("Input size: %lux%lux24\n", image.width, image.height);
             break;
     }
-    image_s * new = rotate_right(&image);
+    image_s  new;
+    if(clockwise)
+        rotate_left(&image, &new);
+    else
+        rotate_right(&image, &new);
     FILE* out;
     out = fopen("rotated.bmp", "w");
     write_code res;
-    res = to_bmp(out, new);
+    res = to_bmp(out, &new);
     return 0;
 }
 
@@ -67,17 +77,18 @@ write_code to_bmp(FILE* output, image_s* image)
     header.bfReserved = 0;
     header.bOffBits = 54;
     header.biSize = 40;
+
     header.biWidth = image->width;
     header.biHeight = image->height;
     header.biPlanes = 1;
     header.biBitCount = 24;
     header.biCompression = 0;
-    header.biSizeImage = 0;
+    header.biSizeImage = image->width*image->height*3;
     header.biXPelsPerMeter = 0xb13;
     header.biYPelsPerMeter = 0xb13;
     header.biClrUsed = 0;
     header.biClrImportant = 0;
-    fwrite(&header, sizeof(char)*2, 1, output);
+    fwrite(&header, sizeof(bmpHeader_s), 1, output);
     fseek(output, 54, SEEK_SET);
     for(i = 0; i < image->height; i++)
     {
