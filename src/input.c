@@ -1,10 +1,13 @@
 //
 // Created by egor on 27.11.17.
 //
-
+#define HEADER_SIZE 54
+#define HEADER_INFO_SIZE 40
+#define BIT_PER_PIXEL 24
+#define BPM_FORMAT_CODE 0x4d42
+#define MAGIC_NUMBER 0xb13
 #include <malloc.h>
 #include "../include/inOut.h"
-
 read_code read_header(FILE* in, bmpHeader_s* header ){
     read_code res;
     res = 1 == 1 ? READ_OK : READ_INVALID_HEADER;
@@ -46,25 +49,25 @@ write_code to_bmp(FILE* output, image_s* image)
     {
         offset = 4 - offset;
     }
-    header.bfType = 0x4d42;
-    header.bfileSize = 54 + (image->width*3 + offset) * image->height;
+    header.bfType = BPM_FORMAT_CODE;
+    header.bfileSize = HEADER_SIZE + (image->width*3 + offset) * image->height;
     header.bfReserved = 0;
-    header.bOffBits = 54;
-    header.biSize = 40;
+    header.bOffBits = HEADER_SIZE;
+    header.biSize = HEADER_INFO_SIZE;
 
     header.biWidth = image->width;
     header.biHeight = image->height;
     header.biPlanes = 1;
-    header.biBitCount = 24;
+    header.biBitCount = BIT_PER_PIXEL;
     header.biCompression = 0;
     header.biSizeImage = image->width*image->height*3;
-    header.biXPelsPerMeter = 0xb13;
+    header.biXPelsPerMeter = MAGIC_NUMBER;
     header.biYPelsPerMeter = 0xb13;
     header.biClrUsed = 0;
     header.biClrImportant = 0;
     fwrite(&header, sizeof(bmpHeader_s), 1, output);
-    fseek(output, 54, SEEK_SET);
-    for(i = 0; i < image->height; i++)
+    fseek(output, HEADER_SIZE, SEEK_SET);
+    for(i = 0; i <= image->height; i++)
     {
         for(j = 0; j < image->width; j++)
         {

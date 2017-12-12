@@ -26,11 +26,11 @@ typedef struct{
 #pragma pack(pop)
 
 typedef struct {
-    char red, green, blue;
+    unsigned char red, green, blue;
 } pixel_s;
 
 typedef struct {
-    uint64_t width, height;
+    uint32_t width, height;
     pixel_s* data;
 } image_s;
 
